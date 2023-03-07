@@ -32,8 +32,9 @@ class LocalNotification {
     // initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
     AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings(icon);
-    final IOSInitializationSettings initializationSettingsIOS =
-        IOSInitializationSettings(
+
+    final DarwinInitializationSettings initializationSettingsIOS =
+        DarwinInitializationSettings(
             onDidReceiveLocalNotification: onDidReceiveLocalNotification);
     final InitializationSettings initializationSettings =
         InitializationSettings(
@@ -41,17 +42,21 @@ class LocalNotification {
             iOS: initializationSettingsIOS);
     flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
-      onSelectNotification: (payload) {
+      onDidReceiveNotificationResponse: (payload) {
         onSelectNotification(payload: payload, onData: onNotificationPressed);
       },
+      // onSelectNotification: (payload) {
+      //   onSelectNotification(payload: payload, onData: onNotificationPressed);
+      // },
     );
   }
 
-  static Future onSelectNotification({String? payload, onData}) async {
+  static Future onSelectNotification(
+      {NotificationResponse? payload, onData}) async {
     if (payload != null) {
       debugPrint('notification payload: $payload');
 
-      var jsonData = jsonDecode(payload);
+      var jsonData = jsonDecode(payload.payload!);
       onData(jsonData);
     }
   }
