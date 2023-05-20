@@ -9,6 +9,7 @@ class LocalNotification {
   static AndroidNotificationChannel channel = AndroidNotificationChannel(
     'high_importance_channel', // id
     'High Importance Notifications', // title
+    'All Notifications',
     // 'This channel is used for important notifications.', // description
     importance: Importance.high,
   );
@@ -33,8 +34,8 @@ class LocalNotification {
     AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings(icon);
 
-    final DarwinInitializationSettings initializationSettingsIOS =
-        DarwinInitializationSettings(
+    final IOSInitializationSettings initializationSettingsIOS =
+        IOSInitializationSettings(
             onDidReceiveLocalNotification: onDidReceiveLocalNotification);
     final InitializationSettings initializationSettings =
         InitializationSettings(
@@ -42,8 +43,9 @@ class LocalNotification {
             iOS: initializationSettingsIOS);
     flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
-      onDidReceiveNotificationResponse: (payload) {
-        onSelectNotification(payload: payload, onData: onNotificationPressed);
+      onSelectNotification: (payload) {
+        return onSelectNotification(
+            payload: payload, onData: onNotificationPressed);
       },
       // onSelectNotification: (payload) {
       //   onSelectNotification(payload: payload, onData: onNotificationPressed);
@@ -51,12 +53,11 @@ class LocalNotification {
     );
   }
 
-  static Future onSelectNotification(
-      {NotificationResponse? payload, onData}) async {
+  static Future onSelectNotification({String? payload, onData}) async {
     if (payload != null) {
       debugPrint('notification payload: $payload');
 
-      var jsonData = jsonDecode(payload.payload!);
+      var jsonData = jsonDecode(payload);
       onData(jsonData);
     }
   }
@@ -78,6 +79,7 @@ class LocalNotification {
           android: AndroidNotificationDetails(
             channel.id,
             channel.name,
+            'All Notifications',
             // channel.description,
             // TODO add a proper drawable resource to android, for now using
             //      one that already exists in example app.
